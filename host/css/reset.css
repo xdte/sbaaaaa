@@ -1,0 +1,94 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+    margin: 0;
+}
+.reset-password-container {
+    background-color: #fff;
+    padding: 30px 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+}
+.reset-password-container .logo img {
+    width: 80px;
+    height: auto;
+    margin-bottom: 20px;
+}
+.reset-password-container h2 {
+    margin-bottom: 20px;
+}
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+    position: relative;
+}
+.form-group label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 16px;
+}
+.form-group .email-container {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+.form-group .email-container input {
+    border: none;
+    padding: 10px;
+    flex: 1;
+    font-size: 16px;
+    border-radius: 4px 0 0 4px;
+}
+.form-group .email-container button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+    font-size: 16px;
+}
+.form-group .email-container button:hover {
+    background-color: #45a049;
+}
+.actions {
+    margin-top: 20px;
+}
+.actions input {
+    width: 100%;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+.actions input:hover {
+    background-color: #45a049;
+}
+.error-message {
+    display: none;
+    color: red;
+    margin-top: 10px;
+}
+.info {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #333;
+}

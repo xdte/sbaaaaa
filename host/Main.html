@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SY Task Application</title>
+    <link rel="icon" type="image/png" href="images/logo.png">
+    <link rel="stylesheet" href="css/css.css">
+    <script src="func.js"></script>
+    <style>
+
+        h1, h2 {
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="number"], input[type="text"], textarea, select, input[type="date"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        input[type="submit"], button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        input[type="submit"]:hover, button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <a href="Main.html">
+                <img src="logo.png" alt="Logo" width="50" height="25">
+            </a>
+        </div>
+        <button class="logout-button" onclick="logout()">Logout</button>
+    </header>
+    <div class="container">
+        <h1>SY Task Application</h1>
+        <form id="taskActionForm" onsubmit="handleFormSubmit(event)">
+            <div class="form-group">
+                <label for="taskAction">Choose an action:</label>
+                <select id="action" name="category">
+                    <option value="0" selected></option>
+                    <option value="1">Add Task</option>
+                    <option value="2">List All Tasks</option>
+                    <option value="3">List Uncompleted Tasks</option>
+                    <option value="4">Set Task Completed</option>
+                    <option value="5">Edit/Delete Tasks</option>
+                  </select>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Submit">
+            </div>
+        </form>
+    </div>
+    <script>
+        function handleFormSubmit(event) {
+            event.preventDefault(); 
+            const taskAction = document.getElementById('action').value;
+            let redirectUrl = '';
+
+            switch (parseInt(taskAction, 10)) {
+                case 1:
+                    redirectUrl = 'addTask.html';
+                    break;
+                case 2:
+                    redirectUrl = 'listAllTasks.html';
+                    break;
+                case 3:
+                    redirectUrl = 'listUncompletedTasks.html';
+                    break;
+                case 4:
+                    redirectUrl = 'setTaskCompleted.html';
+                    break;
+                case 5:
+                    redirectUrl = 'updateDeleteTasks.html';
+                    break;
+                default:
+                    alert('Invalid action');
+                    return;
+            }
+            window.location.href = redirectUrl; 
+        }
+        
+    </script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Completed Tasks - SY Task Application</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="stylesheet" href="css/css.css">
+    <style>
+        .task {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+            text-decoration: line-through;
+            background-color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <a href="Main.html">
+                <img src="logo.png" alt="Logo" width="50" height="25">
+            </a>
+        </div>
+    </header>
+    <div class="container">
+        <h2>Completed Tasks</h2>
+        <div id="taskList"></div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const taskList = document.getElementById('taskList');
+            let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+            const completedTasks = tasks.filter(task => task.completed);
+
+            completedTasks.forEach(task => {
+                const taskDiv = document.createElement('div');
+                taskDiv.className = 'task';
+                taskDiv.innerHTML = `
+                    <p><strong>Task Name:</strong> ${task.name}</p>
+                    <p><strong>Description:</strong> ${task.description}</p>
+                    <p><strong>Due Date:</strong> ${task.dueDate}</p>
+                `;
+                taskList.appendChild(taskDiv);
+            });
+
+            if (completedTasks.length === 0) {
+                taskList.innerHTML = '<p>No completed tasks found.</p>';
+            }
+        });
+    </script>
+</body>
+</html>
