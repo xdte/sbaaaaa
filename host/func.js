@@ -378,3 +378,31 @@ async function deleteCompletedTask() {
         alert("Something went wrong")
     }
 }
+
+function actionSelector(event) {
+    event.preventDefault(); 
+    const taskAction = document.getElementById('action').value;
+    let redirectUrl = '';
+
+    switch (parseInt(taskAction, 10)) {
+        case 1:
+            redirectUrl = 'addTask.html';
+            break;
+        case 2:
+            redirectUrl = 'listAllTasks.html';
+            break;
+        case 3:
+            redirectUrl = 'listUncompletedTasks.html';
+            break;
+        case 4:
+            redirectUrl = 'setTaskCompleted.html';
+            break;
+        case 5:
+            redirectUrl = 'updateDeleteTasks.html';
+            break;
+        default:
+            alert('Invalid action');
+            return;
+    }
+    window.location.href = redirectUrl; 
+}

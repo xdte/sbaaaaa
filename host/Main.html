@@ -53,7 +53,7 @@
     </header>
     <div class="container">
         <h1>SY Task Application</h1>
-        <form id="taskActionForm" onsubmit="handleFormSubmit(event)">
+        <form id="taskActionForm" onsubmit="actionSelector(event)">
             <div class="form-group">
                 <label for="taskAction">Choose an action:</label>
                 <select id="action" name="category">
@@ -70,35 +70,5 @@
             </div>
         </form>
     </div>
-    <script>
-        function handleFormSubmit(event) {
-            event.preventDefault(); 
-            const taskAction = document.getElementById('action').value;
-            let redirectUrl = '';
-
-            switch (parseInt(taskAction, 10)) {
-                case 1:
-                    redirectUrl = 'addTask.html';
-                    break;
-                case 2:
-                    redirectUrl = 'listAllTasks.html';
-                    break;
-                case 3:
-                    redirectUrl = 'listUncompletedTasks.html';
-                    break;
-                case 4:
-                    redirectUrl = 'setTaskCompleted.html';
-                    break;
-                case 5:
-                    redirectUrl = 'updateDeleteTasks.html';
-                    break;
-                default:
-                    alert('Invalid action');
-                    return;
-            }
-            window.location.href = redirectUrl; 
-        }
-        
-    </script>
 </body>
 </html>
