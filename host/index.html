@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.0.0/crypto-js.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - SY Task Application</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <!-- <link rel="stylesheet" href="css/css.css"> -->
+    <link rel="stylesheet" href="css/login.css">
+    <script src="func.js"></script>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <img src="logo.png" alt="Logo">
+        </div>
+        <h2>Login to SY Task</h2>
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="actions">
+                <input type="submit" value="Login"><br>
+                <a href="resetpassword.html" style="font-size: 14px;">Forgot Password?</a>
+            </div>
+        </form>
+        <div class="error-message" id="errorMessage">Invalid username or password.</div>
+        <div class="register-link">
+            Don't have an account yet? <a href="Register.html">Press here to register.</a>
+        </div>
+    </div>
+
+</body>
+</html>

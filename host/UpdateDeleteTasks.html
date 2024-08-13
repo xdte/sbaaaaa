@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update/Delete Tasks - SY Task Application</title>
+    <link rel="stylesheet" href="css/css.css">
+    <link rel="stylesheet" href="css/addtask.css">
+    <link rel="icon" type="image/png" href="logo.png">
+    <script src="func.js"></script>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <a href="Main.html">
+                <img src="logo.png" alt="Logo" width="50" height="25">
+            </a>
+        </div>
+        <button class="account-button" onclick="logout()">Account</button>
+    </header>
+    <div class="container">
+        <h2>Update/Delete Tasks</h2>
+        <center>    
+            <button onclick="deleteCompletedTask()">Delete Completed Task</button>
+        </center>
+        <br>
+        <div id="taskList"></div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            await editDeleteTask()
+        });
+    </script>
+</body>
+</html>
