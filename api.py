@@ -16,7 +16,7 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 def validate_sid(sid):
     con = sqlite3.connect("main.db")
     cur = con.cursor()
-    result = cur.execute(f"SELECT EXISTS (SELECT 1 FROM `session` WHERE `sid` = '{sid}')").fetchall()
+    result = cur.execute("SELECT EXISTS (SELECT 1 FROM `session` WHERE `sid` = ?)", (sid, )).fetchall()
     con.close()
     return True if 1 in result[0] else False
 
@@ -27,7 +27,7 @@ def validate_sid(sid):
 def getuid(sid):
     con = sqlite3.connect("main.db")
     cur = con.cursor()
-    result = cur.execute(f"SELECT uid FROM session WHERE sid='{sid}'").fetchone()
+    result = cur.execute("SELECT uid FROM session WHERE sid = ?", (sid, )).fetchone()
     con.close()
     return result[0]
 
@@ -45,11 +45,11 @@ def register():
         code = request.args.get("code")
         con = sqlite3.connect("main.db")
         cur = con.cursor()
-        check = cur.execute(f"SELECT EXISTS (SELECT 1 FROM `verify` WHERE `email` = '{email}' AND `code` = {code})").fetchone()
+        check = cur.execute("SELECT EXISTS (SELECT 1 FROM `verify` WHERE `email` = ? AND `code` = ?)", (email, code, )).fetchone()
         if 1 in check:
-            timestamp = cur.execute(f"SELECT `timestamp` FROM `verify` WHERE `code` = {code}").fetchone()[0]
+            timestamp = cur.execute("SELECT `timestamp` FROM `verify` WHERE `code` = ?", (code, )).fetchone()[0]
             if timestamp + (60*15) > int(time.time()):
-                cur.execute(f"INSERT INTO `user` (`username`, `password`, `email`) VALUES ('{uname}', '{pw}', '{email}')")
+                cur.execute("INSERT INTO `user` (`username`, `password`, `email`) VALUES (?, ?, ?)", (uname, pw, email, ))
                 con.commit()
                 con.close()
                 return jsonify({"message": "success"}), 200
@@ -77,14 +77,15 @@ def login():
         pw = request.args.get("password")
         print(request.args)
         
-        result = cur.execute(f"SELECT EXISTS (SELECT 1 FROM `user` WHERE `username` = '{uname}' AND `password` = '{pw}')").fetchall()
+        result = cur.execute("SELECT EXISTS (SELECT 1 FROM `user` WHERE `username` = ? AND `password` = ?)", (uname, pw,)).fetchall()
         print(result)
         if 1 in result[0]:
-            uid = cur.execute(f"SELECT `id` FROM `user` WHERE `username` = '{uname}'").fetchall()[0][0]
+            uid = cur.execute("SELECT `id` FROM `user` WHERE `username` = ?", (uname,)).fetchall()[0][0]
+            print(uid)
             curtime = int(time.time())
             t = str(uid)+str(curtime)
             sid = hashlib.sha256(t.encode("utf-8")).hexdigest()
-            cur.execute(f"INSERT INTO `session` (`sid`, `uid`, `timestamp`) VALUES ('{sid}', (SELECT `id` FROM `user` WHERE `username` = '{uname}'), {curtime})")
+            cur.execute("INSERT INTO `session` (`sid`, `uid`, `timestamp`) VALUES (?, (SELECT `id` FROM `user` WHERE `username` = ?), ?)", (sid, uname, curtime,))
             con.commit()
             return jsonify({"message": "success", "sid": sid}), 200
         else:
@@ -105,7 +106,7 @@ def userget():
         if validate_sid(sid):
             con = sqlite3.connect("main.db")
             cur = con.cursor()
-            result = cur.execute(f"SELECT `username`, `email` FROM `user` WHERE `id` = {getuid(sid)}").fetchone()
+            result = cur.execute("SELECT `username`, `email` FROM `user` WHERE `id` = ?", (getuid(sid),)).fetchone()
             return jsonify({"message": "success", "user": result}), 200
         else:
             return jsonify({"message": "sessionid not found"}), 401 
@@ -163,7 +164,7 @@ def logout():
         if validate_sid(sid):
             con = sqlite3.connect("main.db")
             cur = con.cursor()
-            cur.execute(f"DELETE FROM `session` WHERE `sid` = '{sid}'")
+            cur.execute("DELETE FROM `session` WHERE `sid` = ?", (sid,))
             con.commit()
             con.close()
             return jsonify({"message": "success"}), 200
@@ -188,16 +189,16 @@ def reset():
         email = request.args.get("email")
         code = request.args.get("code")
         password = request.args.get("password")
-        check1 = cur.execute(f"SELECT EXISTS (SELECT 1 FROM `user` WHERE `email` = '{email}')").fetchone()
+        check1 = cur.execute("SELECT EXISTS (SELECT 1 FROM `user` WHERE `email` = ?)", (email,)).fetchone()
         if 1 in check1:
             print("check1 pass")
-            check2 = cur.execute(f"SELECT EXISTS (SELECT 1 FROM `verify` WHERE `email` = '{email}' AND `code` = {code})").fetchone()
+            check2 = cur.execute("SELECT EXISTS (SELECT 1 FROM `verify` WHERE `email` = ? AND `code` = ?)", (email, code,)).fetchone()
             if 1 in check2:
                 print("check2 pass")
-                timestamp = cur.execute(f"SELECT `timestamp` FROM `verify` WHERE `code` = {code}").fetchone()[0]
+                timestamp = cur.execute(f"SELECT `timestamp` FROM `verify` WHERE `code` = ?", (code,)).fetchone()[0]
                 if timestamp + (60*15) > int(time.time()):    
-                    cur.execute(f"UPDATE `user` SET `password` = '{password}' WHERE `email` = '{email}'")
-                    cur.execute(f"DELETE FROM `verify` WHERE `code` = {code}")
+                    cur.execute("UPDATE `user` SET `password` = ? WHERE `email` = ?", (password, email,))
+                    cur.execute("DELETE FROM `verify` WHERE `code` = ?", (code,))
                     con.commit()
                     con.close()
                     return jsonify({"message": "success"}), 200
@@ -228,9 +229,9 @@ def code():
             cur = con.cursor()
             code = random.randint(100000, 999999)
             timestamp = int(time.time())
-            cur.execute(f"DELETE FROM `verify` WHERE `email` = '{email}'")
+            cur.execute("DELETE FROM `verify` WHERE `email` = ?", (email,))
             con.commit()
-            cur.execute(f"INSERT INTO `verify` (`email`, `code`, `timestamp`) VALUES ('{email}', {code}, {timestamp})")
+            cur.execute("INSERT INTO `verify` (`email`, `code`, `timestamp`) VALUES (?, ?, ?)", (email, code, timestamp,))
             con.commit()
             con.close()            
             mail(email, str(code))
@@ -256,12 +257,12 @@ def gettask():
             uncompleted = request.args.get("uncompleted")
             completed = request.args.get("completed")
             if uncompleted == "1":
-                result = cur.execute(f"SELECT id, title, description, category, due, completed FROM `tasks` WHERE `uid` = {getuid(sid)} AND `completed` = 0 ORDER BY `due`").fetchall()
+                result = cur.execute("SELECT id, title, description, category, due, completed FROM `tasks` WHERE `uid` = ? AND `completed` = 0 ORDER BY `due`", (getuid(sid), )).fetchall()
             elif completed == "1":
-                result = cur.execute(f"SELECT id, title, description, category, due, completed FROM `tasks` WHERE `uid` = {getuid(sid)} AND `completed` = 1 ORDER BY `due`").fetchall()
+                result = cur.execute("SELECT id, title, description, category, due, completed FROM `tasks` WHERE `uid` = ? AND `completed` = 1 ORDER BY `due`", (getuid(sid), )).fetchall()
             else:
-                result = cur.execute(f"SELECT id, title, description, category, due, completed FROM `tasks` WHERE `uid` = {getuid(sid)} ORDER BY `completed` ASC, `due` ASC").fetchall()
-            cur.execute(f"UPDATE `session` SET `lastused` = {int(time.time())} WHERE `uid` = {getuid(sid)}").fetchall()
+                result = cur.execute("SELECT id, title, description, category, due, completed FROM `tasks` WHERE `uid` = ? ORDER BY `completed` ASC, `due` ASC", (getuid(sid), )).fetchall()
+            cur.execute("UPDATE `session` SET `lastused` = ? WHERE `uid` = ?", (int(time.time()), getuid(sid), )).fetchall()
             con.commit()
             return jsonify({"message": "success", "tasks": result}), 200
         else:
@@ -290,8 +291,8 @@ def addtask():
             if int(time.time()) < int(due)+(3600*8):
                 con = sqlite3.connect("main.db")
                 cur = con.cursor()
-                cur.execute(fr"""INSERT INTO `tasks` (`title`, `description`, `category`, `due`, `uid`) VALUES ("{title}", "{desc}", '{category}', '{due}', {getuid(sid)})""")
-                cur.execute(f"UPDATE `session` SET `lastused` = {int(time.time())} WHERE `uid` = {getuid(sid)}").fetchall()
+                cur.execute("INSERT INTO `tasks` (`title`, `description`, `category`, `due`, `uid`) VALUES (?, ?, ?, ?, ?)", (title, desc, category, due, getuid(sid), ))
+                cur.execute("UPDATE `session` SET `lastused` = ? WHERE `uid` = ?", (int(time.time()), getuid(sid), )).fetchall()
                 con.commit()
                 return jsonify({"message": "success"}), 200
             else:
@@ -322,16 +323,16 @@ def edittask():
             con = sqlite3.connect("main.db")
             cur = con.cursor()
             if setcomplete == "1":
-                if cur.execute(f"SELECT `uid` FROM `tasks` WHERE `id` = {taskid}").fetchall()[0][0] == getuid(sid):
-                    cur.execute(f"UPDATE `tasks` SET `completed` = 1 WHERE `id` = {taskid}")
+                if cur.execute("SELECT `uid` FROM `tasks` WHERE `id` = ?", (taskid, )).fetchall()[0][0] == getuid(sid):
+                    cur.execute("UPDATE `tasks` SET `completed` = 1 WHERE `id` = ?", (taskid, ))
             else:
-                if cur.execute(f"SELECT `uid` FROM `tasks` WHERE `id` = {taskid}").fetchall()[0][0] == getuid(sid):
+                if cur.execute("SELECT `uid` FROM `tasks` WHERE `id` = ?", (taskid, )).fetchall()[0][0] == getuid(sid):
                     title = request.args.get("title")
                     desc = request.args.get("desc")
                     category = request.args.get("category")
                     due  = request.args.get("due")
                     if int(time.time()) < int(due)+(3600*8):
-                        cur.execute(f"""UPDATE `tasks` SET `title` = "{title}", `description` = "{desc}", `category` = '{category}', `due` = '{due}' WHERE `id` = {taskid} AND `uid` = {getuid(sid)}""")
+                        cur.execute("UPDATE `tasks` SET `title` = ?, `description` = ?, `category` = ?, `due` = ? WHERE `id` = ? AND `uid` = ?", (title, desc, category, due, taskid, getuid(sid), ))
                     else:
                         return jsonify({"message": "due invalid"}), 500
             con.commit()
@@ -362,14 +363,14 @@ def deletetask():
             con = sqlite3.connect("main.db")
             cur = con.cursor()
             if completed == "1":
-                cur.execute(f"DELETE FROM `tasks` WHERE `uid` = {getuid(sid)} AND `completed` = 1")
+                cur.execute("DELETE FROM `tasks` WHERE `uid` = ? AND `completed` = 1", (getuid(sid), ))
                 con.commit()
                 con.close()
                 return jsonify({"message": "success"}), 200
                 
             else:
-                if cur.execute(f"SELECT `uid` FROM `tasks` WHERE `id` = {taskid}").fetchall()[0][0] == getuid(sid):
-                    cur.execute(f"DELETE FROM `tasks` WHERE `id` = {taskid}")
+                if cur.execute("SELECT `uid` FROM `tasks` WHERE `id` = ?", (taskid, )).fetchall()[0][0] == getuid(sid):
+                    cur.execute("DELETE FROM `tasks` WHERE `id` = ?", (taskid, ))
                     con.commit()
                     con.close()
                     return jsonify({"message": "success"}), 200
