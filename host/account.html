@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Task - SY Task Application</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="stylesheet" href="css/css.css">
+    <link rel="stylesheet" href="css/account.css">
+    <script src="func.js"></script>
+
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <a href="Main.html">
+                <img src="logo.png" alt="Logo" width="50" height="25">
+            </a>
+        </div>
+    </header>
+    <div class="container">
+        <h2>Account management</h2>
+        <form id="addTaskForm">
+            <div class="form-group">
+                <label for="updateusername">Username:</label>
+                <input type="text" id="updateusername" name="updateusername">
+                <button onclick="updateusername()" class="inlinebutton">Update username</button>
+            </div>
+            <div class="form-group">
+                <label for="updateemail">Email:</label>
+                <input type="text" id="updateemail" name="updateemail">
+                <button onclick="updateemail()" class="inlinebutton">Update email</button>
+            </div>
+            <div class="form-group">
+                <label for="updatepassword">Password:</label>
+                <input id="updatepassword" name="updatepassword" type="text"></input>
+            </div>            
+            <div class="form-group">
+                <label for="updatepasswordconfirm">Confirm password:</label>
+                <input id="updatepasswordconfirm" name="updatepasswordconfirm" type="text"></input>
+                <button onclick="editTask()" class="inlinebutton">Change password</button>
+            </div>
+        </form>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', accountManager);
+    </script>
+</body>
+</html>

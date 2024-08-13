@@ -6,7 +6,9 @@ import hashlib
 from flask_cors import CORS, cross_origin
 app = Flask(__name__)
 cors = CORS(app, origins='*')
+import threading
 from sendemail import mail
+from checkexpire import checkexpire
 
 app.config['CORS_HEADERS'] = 'Content-Type'
 
@@ -94,6 +96,62 @@ def login():
 
 
 
+@app.route('/userget/', methods=['GET'])
+@cross_origin()
+def userget():
+    print("userget request received")
+    try:
+        sid = request.args.get("sid")
+        if validate_sid(sid):
+            con = sqlite3.connect("main.db")
+            cur = con.cursor()
+            result = cur.execute(f"SELECT `username`, `email` FROM `user` WHERE `id` = {getuid(sid)}").fetchone()
+            return jsonify({"message": "success", "user": result}), 200
+        else:
+            return jsonify({"message": "sessionid not found"}), 401 
+    except sqlite3.Error as e:
+        print(e)
+        return jsonify({"message": f"Error: {e}"}), 500
+
+
+
+
+
+@app.route('/manage/', methods=['GET'])
+@cross_origin()
+def manage():
+    print("manage request received")
+    try:
+        sid = request.args.get("sid")
+        action = request.args.get("action")
+        if validate_sid(sid):
+            con = sqlite3.connect("main.db")
+            cur = con.cursor()
+            arg = request.args.get("arg")
+            if action == "password":
+                cur.execute(f"UPDATE `user` SET `password` = {arg} WHERE `uid` = {getuid(sid)}")
+                return jsonify({"message": "success"}), 200     
+            elif action == "username":
+                if 1 not in cur.execute(f"SELECT EXISTS (SELECT 1 FROM `user` WHERE `username` = '{arg}')").fetchone():
+                    cur.execute(f"UPDATE `user` SET `username` = {arg} WHERE `uid` = {getuid(sid)}")
+                    return jsonify({"message": "success"}), 200
+                else:
+                    return jsonify({"message": "Username already exists"}), 501
+            elif action == "email":
+                if 1 not in cur.execute(f"SELECT EXISTS (SELECT 1 FROM `user` WHERE `email` = '{arg}')").fetchone():
+                    cur.execute(f"UPDATE `user` SET `email` = {arg} WHERE `uid` = {getuid(sid)}")
+                    return jsonify({"message": "success"}), 200
+                else:
+                    return jsonify({"message": "Email already exists"}), 501
+        else:
+            return jsonify({"message": "sessionid not found"}), 401
+    except sqlite3.Error as e:
+        print(e)
+        con.rollback()
+        con.close()
+        return jsonify({"message": f"Error: {e}"}), 500
+
+
 
 
 @app.route('/logout/', methods=['GET'])
@@ -101,10 +159,10 @@ def login():
 def logout():
     print("logout request received")
     try:
-        con = sqlite3.connect("main.db")
-        cur = con.cursor()
         sid = request.args.get("sid")
         if validate_sid(sid):
+            con = sqlite3.connect("main.db")
+            cur = con.cursor()
             cur.execute(f"DELETE FROM `session` WHERE `sid` = '{sid}'")
             con.commit()
             con.close()
@@ -114,8 +172,6 @@ def logout():
         
     except sqlite3.Error as e:
         print(e)
-        con.rollback()
-        con.close()
         return jsonify({"message": f"Error: {e}"}), 500
 
 
@@ -205,6 +261,8 @@ def gettask():
                 result = cur.execute(f"SELECT id, title, description, category, due, completed FROM `tasks` WHERE `uid` = {getuid(sid)} AND `completed` = 1 ORDER BY `due`").fetchall()
             else:
                 result = cur.execute(f"SELECT id, title, description, category, due, completed FROM `tasks` WHERE `uid` = {getuid(sid)} ORDER BY `completed` ASC, `due` ASC").fetchall()
+            cur.execute(f"UPDATE `session` SET `lastused` = {int(time.time())} WHERE `uid` = {getuid(sid)}").fetchall()
+            con.commit()
             return jsonify({"message": "success", "tasks": result}), 200
         else:
             return jsonify({"message": "sessionid invalid"}), 401
@@ -233,6 +291,7 @@ def addtask():
                 con = sqlite3.connect("main.db")
                 cur = con.cursor()
                 cur.execute(fr"""INSERT INTO `tasks` (`title`, `description`, `category`, `due`, `uid`) VALUES ("{title}", "{desc}", '{category}', '{due}', {getuid(sid)})""")
+                cur.execute(f"UPDATE `session` SET `lastused` = {int(time.time())} WHERE `uid` = {getuid(sid)}").fetchall()
                 con.commit()
                 return jsonify({"message": "success"}), 200
             else:
@@ -243,6 +302,8 @@ def addtask():
         
     except sqlite3.Error as e:
         print(e)
+        con.rollback()
+        con.close()
         return jsonify({"message": f"Error: {e}"}), 500
 
 
@@ -281,6 +342,8 @@ def edittask():
         
     except sqlite3.Error as e:
         print(e)
+        con.rollback()
+        con.close()
         return jsonify({"message": f"Error: {e}"}), 500
 
 
@@ -316,12 +379,14 @@ def deletetask():
             return jsonify({"message": "sessionid invalid"}), 401
     except sqlite3.Error as e:
         print(e)
+        con.rollback()
+        con.close()
         return jsonify({"message": f"Error: {e}"}), 500
     except TypeError:
         return jsonify({"message": "success, no task to delete"}), 200
 
 
-from checkexpire import checkexpire
+threading.Thread(target=checkexpire).start()
 app.run(port=5050, host="0.0.0.0")
 
 

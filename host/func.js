@@ -1,4 +1,4 @@
-const url = "35.212.253.73:5050";
+const url = "0.0.0.0:5050";
 
 
 async function handleLogin(event) {
@@ -73,6 +73,15 @@ async function sendCode() {
         alert("Something went wrong");
     }
 }
+
+
+
+async function accountManager() {
+    const response = await fetch(`http://${url}/userget/?sid=${localStorage.getItem("sid")}`)
+    const js = await response.json();
+    console.log(js);
+}
+
 
 
 async function logout() {

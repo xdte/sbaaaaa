@@ -17,6 +17,7 @@
                 <img src="logo.png" alt="Logo" width="50" height="25">
             </a>
         </div>
+        <button class="account-button" onclick="logout()">Account</button>
     </header>
     <div class="container">
         <h2>Add New Task</h2>
@@ -48,17 +49,7 @@
         </form>
     </div>
     <script>
-        document.addEventListener('DOMContentLoaded', async function() {
-
-            const dueDateInput = document.getElementById('dueDate');
-            const today = new Date();
-            const utc8Offset = 8 * 60; // UTC+8 offset in minutes
-            const localDate = new Date(today.getTime() + utc8Offset * 60 * 1000);
-            const localDateString = localDate.toISOString().split('T')[0];
-            dueDateInput.setAttribute('min', localDateString);
-
-            document.getElementById('addTaskForm').addEventListener('submit', addTask);
-    });
+        document.getElementById('addTaskForm').addEventListener('submit', addTask);
     </script>
 </body>
 </html>
