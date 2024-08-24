@@ -48,3 +48,9 @@ body {
     color: red;
     margin-top: 10px;
 }
+:root {
+    --md-sys-color-primary: #006A6A;
+}
+.sendcode {
+    margin-top: 10px;
+}

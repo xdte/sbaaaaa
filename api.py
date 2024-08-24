@@ -386,8 +386,16 @@ def deletetask():
     except TypeError:
         return jsonify({"message": "success, no task to delete"}), 200
 
+@app.route('/test/', methods=['POST', 'GET'])
+@cross_origin()
+def test():
+    print(request.get_json())
+    print(request.get_json())
+    return "hi"
+    
+
 
 threading.Thread(target=checkexpire).start()
-app.run(port=5050, host="0.0.0.0")
+app.run(port=5050, host="0.0.0.0", debug=True)
 
 
