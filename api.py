@@ -23,7 +23,6 @@ def validate_sid(sid):
 
 
 
-
 def getuid(sid):
     con = sqlite3.connect("main.db")
     cur = con.cursor()
@@ -31,6 +30,19 @@ def getuid(sid):
     con.close()
     return result[0]
 
+
+
+@app.route('/checksid/', methods=['GET'])
+@cross_origin()
+def checksid():
+    try:
+        sid = request.args.get("sid")
+        if validate_sid(sid):
+            return jsonify({"message": "success"}), 200
+        else:
+            return jsonify({"message": "Code expired"}), 401
+    except sqlite3.Error as e:
+        return jsonify({"message": f"Error: {e}"}), 500
 
 
 
@@ -245,6 +257,8 @@ def code():
 
 
 
+
+
 @app.route('/get/', methods=['GET'])
 @cross_origin()
 def gettask():
@@ -262,7 +276,7 @@ def gettask():
                 result = cur.execute("SELECT id, title, description, category, due, completed FROM `tasks` WHERE `uid` = ? AND `completed` = 1 ORDER BY `due`", (getuid(sid), )).fetchall()
             else:
                 result = cur.execute("SELECT id, title, description, category, due, completed FROM `tasks` WHERE `uid` = ? ORDER BY `completed` ASC, `due` ASC", (getuid(sid), )).fetchall()
-            cur.execute("UPDATE `session` SET `lastused` = ? WHERE `uid` = ?", (int(time.time()), getuid(sid), )).fetchall()
+            cur.execute("UPDATE `session` SET `timestamp` = ? WHERE `uid` = ?", (int(time.time()), getuid(sid), )).fetchall()
             con.commit()
             return jsonify({"message": "success", "tasks": result}), 200
         else:
@@ -292,7 +306,7 @@ def addtask():
                 con = sqlite3.connect("main.db")
                 cur = con.cursor()
                 cur.execute("INSERT INTO `tasks` (`title`, `description`, `category`, `due`, `uid`) VALUES (?, ?, ?, ?, ?)", (title, desc, category, due, getuid(sid), ))
-                cur.execute("UPDATE `session` SET `lastused` = ? WHERE `uid` = ?", (int(time.time()), getuid(sid), )).fetchall()
+                cur.execute("UPDATE `session` SET `timestamp` = ? WHERE `uid` = ?", (int(time.time()), getuid(sid), )).fetchall()
                 con.commit()
                 return jsonify({"message": "success"}), 200
             else:

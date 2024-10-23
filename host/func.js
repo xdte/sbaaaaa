@@ -1,4 +1,6 @@
-const url = "0.0.0.0:5050";
+const url = "127.0.0.1:5050";
+
+
 
 
 async function handleLogin(event) {
@@ -19,6 +21,16 @@ async function handleLogin(event) {
     }
 }
 
+
+
+async function checksid(event) {
+    event.preventDefault();
+    const sid = localStorage.getItem("sid");
+    const response = await fetch(`http://${url}/checksid/?sid=${sid}`);
+    if (response.ok) {
+        window.location.href = 'Main.html';
+    }
+}
 
 
 async function register(event) {
