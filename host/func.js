@@ -1,4 +1,4 @@
-const url = "127.0.0.1:5050";
+const url = "35.212.187.28:5050";
 
 
 
@@ -407,19 +407,19 @@ function actionSelector(event) {
 
     switch (parseInt(taskAction, 10)) {
         case 1:
-            redirectUrl = 'addTask.html';
+            redirectUrl = 'AddTask.html';
             break;
         case 2:
-            redirectUrl = 'listAllTasks.html';
+            redirectUrl = 'ListAllTasks.html';
             break;
         case 3:
-            redirectUrl = 'listUncompletedTasks.html';
+            redirectUrl = 'ListUncompletedTasks.html';
             break;
         case 4:
-            redirectUrl = 'setTaskCompleted.html';
+            redirectUrl = 'SetTaskCompleted.html';
             break;
         case 5:
-            redirectUrl = 'updateDeleteTasks.html';
+            redirectUrl = 'UpdateDeleteTasks.html';
             break;
         default:
             alert('Invalid action');
